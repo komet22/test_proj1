@@ -38,8 +38,30 @@ public class CRUDJUnitTest {
     }
 
     @Test
-    public void hello() {
-        System.out.println("hello");
+    public void addEmployeeTest() {
+        System.out.println("CRUD Create test: addEmployee");
         assertTrue(true);
+        //TODO
+    }
+    
+    @Test
+    public void listEmployeesTest() {
+        System.out.println("CRUD Read test: listEmployees");
+        assertTrue(true);
+        //TODO
+    }
+    
+    @Test
+    public void updateEmployeeTest() {
+        System.out.println("CRUD Update test: updateEmployee");
+        assertTrue(true);
+        //TODO
+    }
+    
+    @Test
+    public void deleteEmployeeTest() {
+        System.out.println("CRUD Delete test: deleteEmployee");
+        assertTrue(true);
+        //TODO
     }
 }
