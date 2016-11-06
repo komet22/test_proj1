@@ -20,6 +20,8 @@ import org.hibernate.cfg.Configuration;
 
 public class ManageEmployee {
 	private static SessionFactory factory;
+        
+        public ManageEmployee(SessionFactory f) {factory = f;}
 
 	public static void main(String[] args) {
 		try {
@@ -28,7 +30,7 @@ public class ManageEmployee {
 			System.err.println("Failed to create sessionFactory object." + ex);
 			throw new ExceptionInInitializerError(ex);
 		}
-      ManageEmployee ME = new ManageEmployee();
+      ManageEmployee ME = new ManageEmployee(factory);
       /* Let us have a set of certificates for the first employee  */
       ArrayList set1 = new ArrayList();
       set1.add(new Certificate("MCA"));
