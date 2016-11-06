@@ -33,11 +33,6 @@ public class CRUDJUnitTest {
     
     @BeforeClass
     public static void setUpClass() {
-        try {
-            factory = new Configuration().configure().buildSessionFactory();
-        } catch (Throwable ex) {
-            fail("Failed to create sessionFactory object. Aborting test.");
-	}
     }
     
     @AfterClass
@@ -46,15 +41,6 @@ public class CRUDJUnitTest {
     
     @Before
     public void setUp() {
-        Session session = factory.openSession();
-        Transaction tx = null;
-        try{
-            tx = session.beginTransaction();
-            session.createQuery("DELETE FROM Employee");    //przedtestowe czyszczenie bazy
-            tx.commit();
-        }catch(HibernateException e) {
-            fail("Database communication error. Aborting test.");
-        }
     }
     
     @After
@@ -62,75 +48,29 @@ public class CRUDJUnitTest {
     }
 
     @Test
-    public void addEmployeeTest() {
-        System.out.println("CRUD Create test: addEmployee");
-
-        String firstname = "Andrzej";
-        String lastname = "Kowalski";
-        int salary = 3000;
-        ArrayList cert = new ArrayList();
-        cert.add(new Certificate("MCA"));
-        cert.add(new Certificate("MBA"));
-        cert.add(new Certificate("PMP"));
-        
-        ManageEmployee ME = new ManageEmployee(factory);
-        int id = ME.addEmployee(firstname, lastname, salary, cert);
-        
-        Session session = factory.openSession();
-        Transaction tx = null;
-        try{
-            tx = session.beginTransaction();
-            List result = session.createQuery("FROM Employee e WHERE e.id=" + id + "").list();
-            Employee employee;
-            Certificate c;
-            if(result.iterator().hasNext()) employee = (Employee) result.iterator().next();
-            else {
-                fail("No employee saved or wrong employee ID saved into database.");
-                return;
-            }
-            assertEquals(firstname, employee.getFirstName());
-            assertEquals(lastname, employee.getLastName());
-            result = employee.getCertificates();
-            Iterator it = result.iterator();
-            for (int i = 0; i < 3; i++) {
-                if(it.hasNext()) c = (Certificate) it.next();
-                else {
-                    fail("Wrong number of certificates saved: too few certificates.");
-                    return;
-                }
-                assertEquals(((Certificate)cert.get(i)).getName(), c.getName());
-            }
-            if (it.hasNext()) {
-                fail("Wrong number of certificates saved: too many certificates.");
-                return;
-            }
-            tx.commit();
-        }catch (HibernateException e) {
-            if (tx!=null) tx.rollback();
-            session.close();
-            fail("Database communication error. Aborting test.");
-        }finally {
-            session.close(); 
-        }
-    }
-    
-    @Test
-    public void listEmployeesTest() {
-        System.out.println("CRUD Read test: listEmployees");
+    public void saveTest() {
+        System.out.println("CRUD Create test: session.save()");
         assertTrue(true);
         //TODO
     }
     
     @Test
-    public void updateEmployeeTest() {
-        System.out.println("CRUD Update test: updateEmployee");
+    public void createQueryTest() {
+        System.out.println("CRUD Read test: session.createQuery() - for reading purposes");
         assertTrue(true);
         //TODO
     }
     
     @Test
-    public void deleteEmployeeTest() {
-        System.out.println("CRUD Delete test: deleteEmployee");
+    public void updateTest() {
+        System.out.println("CRUD Update test: session.update()");
+        assertTrue(true);
+        //TODO
+    }
+    
+    @Test
+    public void deleteTest() {
+        System.out.println("CRUD Delete test: session.delete()");
         assertTrue(true);
         //TODO
     }
