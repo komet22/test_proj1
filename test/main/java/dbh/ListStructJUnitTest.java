@@ -125,17 +125,40 @@ public class ListStructJUnitTest {
         System.out.println("Structure Read test: listEmployees");
         ArrayList set1 = new ArrayList();
         set1.add(new Certificate("MCA"));
-        
         ManageEmployee manager = new ManageEmployee(factory);
         
-        manager.addEmployee("Paweł", "Jaruga", 666000000, set1);
+        //Creating new employees
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try{
+            tx = session.beginTransaction();
+            session.createSQLQuery("INSERT INTO EMPLOYEE(id, first_name, last_name, salary) "
+                    +           "VALUES(default, 'Paweł', 'Jaruga', 666000000)").executeUpdate();
+            session.createSQLQuery("INSERT INTO EMPLOYEE(id, first_name, last_name, salary) "
+                    +           "VALUES(default, 'Maciej', 'Stepnowski', 1850)").executeUpdate();
+            session.createSQLQuery("INSERT INTO CERTIFICATE(id, certificate_name) "
+                    +           "VALUES(default, 'AXA')").executeUpdate();
+            session.createSQLQuery("update CERTIFICATE set employee_id=1, idx=0 where id=1").executeUpdate();
+            session.createSQLQuery("INSERT INTO CERTIFICATE(id, certificate_name) "
+                    +           "VALUES(default, 'XAXA')").executeUpdate();
+            session.createSQLQuery("update CERTIFICATE set employee_id=1, idx=1 where id=2").executeUpdate();
+            session.createSQLQuery("INSERT INTO CERTIFICATE(id, certificate_name) "
+                    +           "VALUES(default, 'NOOB')").executeUpdate();
+            session.createSQLQuery("update CERTIFICATE set employee_id=2, idx=0 where id=3").executeUpdate();
+            tx.commit();
+        }catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+        }finally {
+         session.close(); 
+        }
         
         System.setOut(nw);
         manager.listEmployees();
         System.out.flush();
         System.setOut(old);
         
-        //Formatting listEmployees()
+        //Formatting listEmployees() output
         String result = out.toString();
         String[] lines = result.split(System.getProperty("line.separator"));
         CharSequence rem = "Hibernate:";
@@ -156,11 +179,43 @@ public class ListStructJUnitTest {
         StringBuilder exp = new StringBuilder();
         exp.append("First Name: Paweł  Last Name: Jaruga  Salary: 666000000").
             append(System.getProperty("line.separator")).
-            append("Certificate: MCA").
+            append("Certificate: AXA").
+            append(System.getProperty("line.separator")).
+            append("Certificate: XAXA").
+            append(System.getProperty("line.separator")).
+            append("First Name: Maciej  Last Name: Stepnowski  Salary: 1850").
+            append(System.getProperty("line.separator")).
+            append("Certificate: NOOB").
             append(System.getProperty("line.separator"));
+                
         String expected = exp.toString();
         
         assertEquals(result, expected);
+        
+        
+//        (~~~~~~~~~~~~~~~)           (~~~~~~~~~~~~~~~)
+//         \   \~~~~~~~/ /             \   \~~~~~~~/ /
+//           \  \    / /                 \  \    / /
+//             \  \/ /__===_____________==_\  \/ /
+//            __ --  __----__          __-----__  --__
+//         _-~     /'         ~\      /'         ~\    ~-_
+//       /~       |____________|    |_____________|       ~\
+//      |         |  O         |  /\| O           |         |
+//      |          \ _       ./ /    \.          /          |
+//      |             ~~~~~~ /        \~~~~~~~'           |
+//       \                  /____________\                 /
+//        ~--__         ___(              )___       ___--~
+//             ~~~~--~~~    \            /    ~~~--~~____------
+//     ------____/__   ~~     \        /    __---~~ ~\
+//              |   ~~~~~       \    /        __----~|~~~~~~
+//          -----\------------    \/      _________  /
+//                \                |                /
+//                  \   _______   / \     ~~----__/____
+//    ____-----~~~~~~~\~        /     \         /      ~~~~~---
+//                     ~-____-~        ~-____-~
+//                         \              /
+//                           \          /
+//                            ~-______-~
     }
     
     @Test
