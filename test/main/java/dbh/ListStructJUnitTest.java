@@ -6,6 +6,8 @@ package main.java.dbh;
  * and open the template in the editor.
  */
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +30,9 @@ import static org.junit.Assert.*;
 public class ListStructJUnitTest {
     
     private static SessionFactory factory;
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream nw = new PrintStream(out);
+    PrintStream old = System.out;
     
     public ListStructJUnitTest() {
     }
@@ -118,8 +123,44 @@ public class ListStructJUnitTest {
     @Test
     public void listEmployeesTest() {
         System.out.println("Structure Read test: listEmployees");
-        assertTrue(true);
-        //TODO
+        ArrayList set1 = new ArrayList();
+        set1.add(new Certificate("MCA"));
+        
+        ManageEmployee manager = new ManageEmployee(factory);
+        
+        manager.addEmployee("Paweł", "Jaruga", 666000000, set1);
+        
+        System.setOut(nw);
+        manager.listEmployees();
+        System.out.flush();
+        System.setOut(old);
+        
+        //Formatting listEmployees()
+        String result = out.toString();
+        String[] lines = result.split(System.getProperty("line.separator"));
+        CharSequence rem = "Hibernate:";
+        for(int i = 0; i < lines.length; i++)
+        {
+            if(lines[i].contains(rem))
+                lines[i] = "";
+        }
+        StringBuilder res = new StringBuilder();
+        for(String s : lines)
+        {
+            if(!s.equals(""))
+                res.append(s).append(System.getProperty("line.separator"));
+        }
+        result = res.toString();
+        
+        //Building expected string
+        StringBuilder exp = new StringBuilder();
+        exp.append("First Name: Paweł  Last Name: Jaruga  Salary: 666000000").
+            append(System.getProperty("line.separator")).
+            append("Certificate: MCA").
+            append(System.getProperty("line.separator"));
+        String expected = exp.toString();
+        
+        assertEquals(result, expected);
     }
     
     @Test
