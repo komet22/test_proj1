@@ -57,6 +57,7 @@ public class ListStructJUnitTest {
         try{
             tx = session.beginTransaction();
             session.createQuery("DELETE FROM Employee");    //przedtestowe czyszczenie bazy
+            session.createQuery("DELETE FROM Certificate");
             tx.commit();
         }catch(HibernateException e) {
             fail("Database communication error. Aborting test.");
@@ -65,6 +66,16 @@ public class ListStructJUnitTest {
     
     @After
     public void tearDown() {
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try{
+            tx = session.beginTransaction();
+            session.createQuery("DELETE FROM Employee");    //potestowe czyszczenie bazy
+            session.createQuery("DELETE FROM Certificate");
+            tx.commit();
+        }catch(HibernateException e) {
+            fail("Database communication error. Aborting test.");
+        }
     }
 
     @Test
@@ -221,6 +232,9 @@ public class ListStructJUnitTest {
     @Test
     public void updateEmployeeTest() {
         System.out.println("Structure Update test: updateEmployee");
+        
+        
+        
         assertTrue(true);
         //TODO
     }
