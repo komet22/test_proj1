@@ -31,9 +31,6 @@ import static org.junit.Assert.*;
 public class ListStructJUnitTest {
     
     private static SessionFactory factory;
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream nw = new PrintStream(out);
-    PrintStream old = System.out;
     
     public ListStructJUnitTest() {
     }
@@ -151,9 +148,10 @@ public class ListStructJUnitTest {
     @Test
     public void listEmployeesTest() {
         System.out.println("Structure Read test: listEmployees");
-        ArrayList set1 = new ArrayList();
-        set1.add(new Certificate("MCA"));
         ManageEmployee manager = new ManageEmployee(factory);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream nw = new PrintStream(out);
+        PrintStream old = System.out;
         
         //Creating new employees
         List c1 = new ArrayList();
