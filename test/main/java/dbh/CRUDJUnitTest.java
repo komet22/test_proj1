@@ -104,6 +104,7 @@ public class CRUDJUnitTest {
         c2.add(new Certificate("NOOB"));
         List[] cert = {c1, c2};
         Employee[] employee = new Employee[fname.length];
+        int id[] = new int[2];
         
         for(int i = 0 ; i < fname.length ; i++)
         {
@@ -116,42 +117,38 @@ public class CRUDJUnitTest {
         Transaction tx = null;
         try{
             tx = session.beginTransaction();
-            for(Employee em : employee)
-                session.save(em);
             int i = 0;
-            List result = session.createSQLQuery("SELECT * FROM Employee").addEntity(Employee.class).list();
-            Iterator<Employee> it = result.iterator();
-            if(result.size() != fname.length)
-            {
-                fail("Wrong number of Employees");
-                return;
+            for(Employee em : employee) {
+                id[i] = (int) session.save(em);
+                i++;
+            }
+            i = 0;
+            Employee e;
+            try {
+                for (int j = 0; j<2 ;j++){
+                    e =(Employee) session.createQuery("FROM Employee WHERE id="
+                            + j + "").uniqueResult();
+                }
+            } catch (HibernateException ex){
+                fail("Failed to read saved objects. Aborting test.");
+            } catch (ClassCastException ex) {
+                fail("Returned object is not an Employee. Aborting test.");
+            }
+            
+            List result = session.createQuery("FROM Employee").list();
+            if (result.size() != 2) {
+                fail("Wrong number of Employees saved.");
             }
             else
             {
+                Iterator it = result.iterator();
                 while(it.hasNext())
                 {
-                        Employee e = it.next();
+                        e = (Employee) it.next();
                         assertEquals(e.getFirstName(), fname[i]);
                         assertEquals(e.getLastName(), lname[i]);
                         assertEquals(e.getSalary(), salary[i]);
-
-                        List certificates = e.getCertificates();
-                        Iterator<Certificate> ct = certificates.iterator();
-                        if(certificates.size() != cert[i].size())
-                        {
-                            fail("Wrong number of Certificates");
-                            return;
-                        }
-                        else
-                            {
-                            int j = 0;
-                            while(ct.hasNext())
-                            {
-                                Certificate c = (Certificate) cert[i].get(j);
-                                assertEquals(ct.next().getName(), c.getName());
-                                j++;
-                            }
-                        }
+                        assertEquals(e.getCertificates(), cert[i]);
                         i++;
                 }
             }
@@ -166,43 +163,26 @@ public class CRUDJUnitTest {
     
     @Test
     public void createQueryTest() {
-        System.out.println("CRUD Read test: session.createQuery() - for reading purposes");
+        System.out.println("CRUD Read test: session.get()");
         
         String[] fname = {"Paweł", "Maciej"};
         String[] lname = {"Jaruga", "Stepnowski"};
         int[] salary = {666000, 1850};
+        int id[] = new int[2];
         
         Session session = factory.openSession();
         Transaction tx = null;
         try{
             tx = session.beginTransaction();
             
-            int cid = 1;
-            for(int i = 0 ; i < fname.length ; i++)
-            {
-                session.createSQLQuery("INSERT INTO EMPLOYEE(id, first_name, last_name, salary) "
-                    +           "VALUES(default, '"+ fname[i] +"', '"+ lname[i] +"', "+ salary[i] +")").executeUpdate();
-            }
+            for (int i = 0; i < fname.length; i++)
+                id[i] = (int) session.save(new Employee(fname[i], lname[i], salary[i]));
             
-            int i = 0;
-            List result = session.createQuery("FROM Employee").list();
-            Iterator<Employee> it = result.iterator();
-            if(result.size() != fname.length)
-            {
-                fail("Wrong number of Employees");
-                return;
-            }
-            else
-            {
-                while(it.hasNext())
-                {
-                        Employee e = it.next();
-                        assertEquals(e.getFirstName(), fname[i]);
-                        assertEquals(e.getLastName(), lname[i]);
-                        assertEquals(e.getSalary(), salary[i]);
-                        i++;
-                }
-            }
+            
+            Employee result = (Employee) session.get(Employee.class, id[1]);
+            assertEquals(result.getFirstName(), fname[1]);
+            assertEquals(result.getLastName(), lname[1]);
+            assertEquals(result.getSalary(), salary[1]);
             
             tx.commit();
         }catch (HibernateException e) {
@@ -211,9 +191,6 @@ public class CRUDJUnitTest {
         }finally {
          session.close(); 
         }
-        
-        assertTrue(true);
-        //TODO
     }
     
     @Test
