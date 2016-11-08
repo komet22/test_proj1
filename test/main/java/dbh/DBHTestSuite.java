@@ -17,7 +17,7 @@ import org.junit.runners.Suite;
  * @author PM, PJ, SK
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({main.java.dbh.CRUDJUnitTest.class,main.java.dbh.ListStructJUnitTest.class})
+@Suite.SuiteClasses({main.java.dbh.CRUDJUnitTest.class,main.java.dbh.ListStructJUnitTest.class, main.java.dbh.CRUDExceptionsTest.class})
 public class DBHTestSuite {
 
     @BeforeClass
