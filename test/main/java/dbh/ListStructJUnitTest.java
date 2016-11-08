@@ -287,8 +287,8 @@ public class ListStructJUnitTest {
             assertEquals(expected.getSalary(), ((Employee)res.get(0)).getSalary());
             tx.commit();
         }catch (HibernateException e) {
-         if (tx!=null) tx.rollback();
-         e.printStackTrace(); 
+            if (tx!=null) tx.rollback();
+            e.printStackTrace(); 
         }finally {
             session.close();
         }
@@ -297,7 +297,72 @@ public class ListStructJUnitTest {
     @Test
     public void deleteEmployeeTest() {
         System.out.println("Structure Delete test: deleteEmployee");
-        assertTrue(true);
-        //TODO
+        
+        //Create 2 employees
+        List c1 = new ArrayList();
+        c1.add(new Certificate("WR"));
+        Employee e1 = new Employee("Jan", "Kowalski", 3200);
+        e1.setCertificates(c1);
+        List c2 = new ArrayList();
+        c2.add(new Certificate("EDR"));
+        c2.add(new Certificate("TWR"));
+        Employee e2 = new Employee("Mariusz", "Nowak", 4850);
+        e2.setCertificates(c2);
+        
+        Session session = factory.openSession();
+        Transaction tx = null;
+        int id1, id2;
+        id1=id2=0;
+        try{
+            tx = session.beginTransaction();
+            id1 = (int) session.save(e1);
+            id2 = (int) session.save(e2);
+            tx.commit();
+        }catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace(); 
+        }finally {
+            session.close(); 
+        }
+        
+        //Delete first employee
+        ManageEmployee mp = new ManageEmployee(factory);
+        mp.deleteEmployee(id1);
+        
+        //Check struct
+        session = factory.openSession();
+        tx = null;
+        try{
+            int numberOfEmployees = ((BigInteger) session.createSQLQuery("SELECT COUNT(*)"
+                    + "FROM Employee").uniqueResult()).intValue();
+        
+            int numberOfCertificates = ((BigInteger) session.createSQLQuery("SELECT COUNT(*)"
+                    + "FROM Certificate").uniqueResult()).intValue();
+        
+            assertEquals( 1, numberOfEmployees);
+            assertEquals( 2, numberOfCertificates);
+ 
+            List l = session.createQuery("FROM Employee e WHERE e.id=" + id2 + "").list();
+            Employee e = null;
+            if(l.iterator().hasNext()) {
+                e = (Employee) l.iterator().next();
+            } else {
+                fail("No employee returned from the table");
+            }
+            assertEquals( "Mariusz", e.getFirstName() );
+            assertEquals( "Nowak", e.getLastName() );
+            assertEquals( 4850, e.getSalary() );
+            
+            List lc = e.getCertificates();
+            Iterator it = lc.iterator();
+            assertEquals( "EDR", ((Certificate) it.next()).getName() );
+            assertEquals( "TWR", ((Certificate) it.next()).getName() );
+            
+        }catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace(); 
+        }finally {
+            session.close(); 
+        }
     }
 }
