@@ -8,6 +8,7 @@ package main.java.dbh;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -54,13 +55,21 @@ public class ListStructJUnitTest {
     public void setUp() {
         Session session = factory.openSession();
         Transaction tx = null;
-        try{
+         try{
             tx = session.beginTransaction();
-            session.createQuery("DELETE FROM Employee");    //przedtestowe czyszczenie bazy
-            session.createQuery("DELETE FROM Certificate");
+            List all = session.createQuery("FROM Employee").list();
+            for (Iterator it = all.iterator(); it.hasNext();) {
+                session.delete((it.next()));
+            }
+            all = session.createQuery("FROM Certificate").list();
+            for (Iterator it = all.iterator(); it.hasNext();) {
+                session.delete((it.next()));
+            }
             tx.commit();
         }catch(HibernateException e) {
             fail("Database communication error. Aborting test.");
+        } finally {
+            session.close();
         }
     }
     
@@ -68,13 +77,21 @@ public class ListStructJUnitTest {
     public void tearDown() {
         Session session = factory.openSession();
         Transaction tx = null;
-        try{
+         try{
             tx = session.beginTransaction();
-            session.createQuery("DELETE FROM Employee");    //potestowe czyszczenie bazy
-            session.createQuery("DELETE FROM Certificate");
+            List all = session.createQuery("FROM Employee").list();
+            for (Iterator it = all.iterator(); it.hasNext();) {
+                session.delete((it.next()));
+            }
+            all = session.createQuery("FROM Certificate").list();
+            for (Iterator it = all.iterator(); it.hasNext();) {
+                session.delete((it.next()));
+            }
             tx.commit();
         }catch(HibernateException e) {
             fail("Database communication error. Aborting test.");
+        }finally{
+            session.close();
         }
     }
 
@@ -139,23 +156,22 @@ public class ListStructJUnitTest {
         ManageEmployee manager = new ManageEmployee(factory);
         
         //Creating new employees
+        List c1 = new ArrayList();
+        c1.add(new Certificate("AXA"));
+        c1.add(new Certificate("XAXA"));
+        Employee e1 = new Employee("Paweł", "Jaruga", 666000000);
+        e1.setCertificates(c1);
+        List c2 = new ArrayList();
+        c2.add(new Certificate("NOOB"));
+        Employee e2 = new Employee("Maciej", "Stepnowski", 1850);
+        e2.setCertificates(c2);
+        
         Session session = factory.openSession();
         Transaction tx = null;
         try{
             tx = session.beginTransaction();
-            session.createSQLQuery("INSERT INTO EMPLOYEE(id, first_name, last_name, salary) "
-                    +           "VALUES(default, 'Paweł', 'Jaruga', 666000000)").executeUpdate();
-            session.createSQLQuery("INSERT INTO EMPLOYEE(id, first_name, last_name, salary) "
-                    +           "VALUES(default, 'Maciej', 'Stepnowski', 1850)").executeUpdate();
-            session.createSQLQuery("INSERT INTO CERTIFICATE(id, certificate_name) "
-                    +           "VALUES(default, 'AXA')").executeUpdate();
-            session.createSQLQuery("update CERTIFICATE set employee_id=1, idx=0 where id=1").executeUpdate();
-            session.createSQLQuery("INSERT INTO CERTIFICATE(id, certificate_name) "
-                    +           "VALUES(default, 'XAXA')").executeUpdate();
-            session.createSQLQuery("update CERTIFICATE set employee_id=1, idx=1 where id=2").executeUpdate();
-            session.createSQLQuery("INSERT INTO CERTIFICATE(id, certificate_name) "
-                    +           "VALUES(default, 'NOOB')").executeUpdate();
-            session.createSQLQuery("update CERTIFICATE set employee_id=2, idx=0 where id=3").executeUpdate();
+            session.save(e1);
+            session.save(e2);
             tx.commit();
         }catch (HibernateException e) {
          if (tx!=null) tx.rollback();
@@ -233,10 +249,49 @@ public class ListStructJUnitTest {
     public void updateEmployeeTest() {
         System.out.println("Structure Update test: updateEmployee");
         
+        Employee expected = new Employee("Andrzej", "Kowalski", 9001);
+        List a = new ArrayList();
+        a.add(new Certificate("MCA"));
+        a.add(new Certificate("MBA"));
+        expected.setCertificates(a);
         
+        Session session = factory.openSession();
+        Transaction tx = null;
+        int id;
+        try{
+            tx = session.beginTransaction();
+            id = (int) session.save(expected);
+            tx.commit();
+        }catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace();
+         return;
+        }finally {
+            session.close();
+        }
+        expected.setSalary(3000);
         
-        assertTrue(true);
-        //TODO
+        ManageEmployee mp = new ManageEmployee(factory);
+        mp.updateEmployee(id, 3000);
+        
+        session = factory.openSession();
+        try{
+            tx = session.beginTransaction();
+            int i = ((BigInteger) session.createSQLQuery("SELECT COUNT(*)"
+                    + "FROM Certificate").uniqueResult()).intValue();
+            assertEquals(2, i);
+            List res = session.createQuery("FROM Employee").list();
+            assertEquals(1, res.size());
+            assertEquals(expected.getFirstName(), ((Employee)res.get(0)).getFirstName());
+            assertEquals(expected.getLastName(), ((Employee)res.get(0)).getLastName());
+            assertEquals(expected.getSalary(), ((Employee)res.get(0)).getSalary());
+            tx.commit();
+        }catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+        }finally {
+            session.close();
+        }
     }
     
     @Test
