@@ -162,7 +162,7 @@ public class CRUDJUnitTest {
     }
     
     @Test
-    public void createQueryTest() {
+    public void getTest() {
         System.out.println("CRUD Read test: session.get()");
         
         String[] fname = {"Paweł", "Maciej"};
@@ -178,8 +178,13 @@ public class CRUDJUnitTest {
             for (int i = 0; i < fname.length; i++)
                 id[i] = (int) session.save(new Employee(fname[i], lname[i], salary[i]));
             
-            
             Employee result = (Employee) session.get(Employee.class, id[1]);
+            
+            List t = session.createQuery("FROM Employee").list();
+            if (t.size() != 2) {
+                fail("Number of Employees modified.");
+            }
+            
             assertEquals(result.getFirstName(), fname[1]);
             assertEquals(result.getLastName(), lname[1]);
             assertEquals(result.getSalary(), salary[1]);
@@ -196,14 +201,113 @@ public class CRUDJUnitTest {
     @Test
     public void updateTest() {
         System.out.println("CRUD Update test: session.update()");
-        assertTrue(true);
-        //TODO
+        String[] fname = {"Marian", "Adam"};
+        String[] lname = {"Kowalski", "Szechter"};
+        int[] salary = {5000, 1000};
+        
+        List c1 = new ArrayList();
+        c1.add(new Certificate("WPD"));
+        c1.add(new Certificate("RN"));
+        List c2 = new ArrayList();
+        c2.add(new Certificate("GW"));
+        List[] cert = {c1, c2};
+        Employee[] employee = new Employee[fname.length];
+        int id[] = new int[2];
+        
+        for(int i = 0 ; i < fname.length ; i++)
+        {
+            employee[i] = new Employee(fname[i], lname[i], salary[i]);
+            employee[i].setCertificates(cert[i]);
+        }
+        
+        
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try{
+            tx = session.beginTransaction();
+            int i = 0;
+            for(Employee em : employee) {
+                id[i] = (int) session.save(em);
+                i++;
+            }
+            employee[1].setSalary(2000);
+            employee[1].setLastName("Michnik");
+            session.update(employee[1]);
+            
+            Employee e = (Employee) session.get(Employee.class, id[1]);
+            
+            List t = session.createQuery("FROM Employee").list();
+            if (t.size() != 2) {
+                fail("Number of Employees modified.");
+            }
+            
+            assertEquals(e.getFirstName(), "Adam");
+            assertEquals(e.getLastName(), "Michnik");
+            assertEquals(e.getSalary(), 2000);
+            assertEquals(e.getCertificates(), cert[1]);
+            i++;
+                
+            tx.commit();
+        }catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+        }finally {
+         session.close(); 
+        }
     }
     
     @Test
     public void deleteTest() {
         System.out.println("CRUD Delete test: session.delete()");
-        assertTrue(true);
-        //TODO
+        String[] fname = {"Andrzej", "Janusz"};
+        String[] lname = {"Kowalski", "Tracz"};
+        int[] salary = {7000, 15000};
+        int id[] = new int[2];
+        
+        List c1 = new ArrayList();
+        c1.add(new Certificate("WPD"));
+        c1.add(new Certificate("RN"));
+        List c2 = new ArrayList();
+        c2.add(new Certificate("GW"));
+        List[] cert = {c1, c2};
+        Employee[] employee = new Employee[fname.length];
+        
+        for(int i = 0 ; i < fname.length ; i++)
+        {
+            employee[i] = new Employee(fname[i], lname[i], salary[i]);
+            employee[i].setCertificates(cert[i]);
+        }
+        
+        Session session = factory.openSession();
+        Transaction tx = null;
+        try{
+            tx = session.beginTransaction();
+            int i = 0;
+            
+            for(Employee em : employee) {
+                id[i] = (int) session.save(em);
+                i++;
+            }
+            
+            session.delete(employee[0]);
+            
+            List t = session.createQuery("FROM Employee").list();
+            if (t.size() != 1) {
+                fail("Expected number of Employees was: [1], but actual was: [" + t.size() + "].");
+            }
+            
+            Employee result = (Employee) session.get(Employee.class, id[1]);
+            
+            assertEquals(result.getFirstName(), fname[1]);
+            assertEquals(result.getLastName(), lname[1]);
+            assertEquals(result.getSalary(), salary[1]);
+            
+            tx.commit();
+        }catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+        }finally {
+         session.close(); 
+        }
     }
 }
