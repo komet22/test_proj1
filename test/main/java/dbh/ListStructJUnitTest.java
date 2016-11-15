@@ -157,10 +157,10 @@ public class ListStructJUnitTest {
         List c1 = new ArrayList();
         c1.add(new Certificate("AXA"));
         c1.add(new Certificate("XAXA"));
-        Employee e1 = new Employee("Paweł", "Jaruga", 666000000);
+        Employee e1 = new Employee("Paweł", "Jaruga", 20000);
         e1.setCertificates(c1);
         List c2 = new ArrayList();
-        c2.add(new Certificate("NOOB"));
+        c2.add(new Certificate("FGT"));
         Employee e2 = new Employee("Maciej", "Stepnowski", 1850);
         e2.setCertificates(c2);
         
@@ -202,7 +202,7 @@ public class ListStructJUnitTest {
         
         //Building expected string
         StringBuilder exp = new StringBuilder();
-        exp.append("First Name: Paweł  Last Name: Jaruga  Salary: 666000000").
+        exp.append("First Name: Paweł  Last Name: Jaruga  Salary: 20000").
             append(System.getProperty("line.separator")).
             append("Certificate: AXA").
             append(System.getProperty("line.separator")).
@@ -210,37 +210,12 @@ public class ListStructJUnitTest {
             append(System.getProperty("line.separator")).
             append("First Name: Maciej  Last Name: Stepnowski  Salary: 1850").
             append(System.getProperty("line.separator")).
-            append("Certificate: NOOB").
+            append("Certificate: FGT").
             append(System.getProperty("line.separator"));
                 
         String expected = exp.toString();
         
         assertEquals(result, expected);
-        
-        
-//        (~~~~~~~~~~~~~~~)           (~~~~~~~~~~~~~~~)
-//         \   \~~~~~~~/ /             \   \~~~~~~~/ /
-//           \  \    / /                 \  \    / /
-//             \  \/ /__===_____________==_\  \/ /
-//            __ --  __----__          __-----__  --__
-//         _-~     /'         ~\      /'         ~\    ~-_
-//       /~       |____________|    |_____________|       ~\
-//      |         |  O         |  /\| O           |         |
-//      |          \ _       ./ /    \.          /          |
-//      |             ~~~~~~ /        \~~~~~~~'           |
-//       \                  /____________\                 /
-//        ~--__         ___(              )___       ___--~
-//             ~~~~--~~~    \            /    ~~~--~~____------
-//     ------____/__   ~~     \        /    __---~~ ~\
-//              |   ~~~~~       \    /        __----~|~~~~~~
-//          -----\------------    \/      _________  /
-//                \                |                /
-//                  \   _______   / \     ~~----__/____
-//    ____-----~~~~~~~\~        /     \         /      ~~~~~---
-//                     ~-____-~        ~-____-~
-//                         \              /
-//                           \          /
-//                            ~-______-~
     }
     
     @Test

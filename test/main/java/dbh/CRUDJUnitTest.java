@@ -95,13 +95,13 @@ public class CRUDJUnitTest {
         
         String[] fname = {"Paweł", "Maciej"};
         String[] lname = {"Jaruga", "Stepnowski"};
-        int[] salary = {666000, 1850};
+        int[] salary = {20000, 1850};
         
         List c1 = new ArrayList();
         c1.add(new Certificate("AXA"));
         c1.add(new Certificate("XAXA"));
         List c2 = new ArrayList();
-        c2.add(new Certificate("NOOB"));
+        c2.add(new Certificate("FGT"));
         List[] cert = {c1, c2};
         Employee[] employee = new Employee[fname.length];
         int id[] = new int[2];
@@ -167,7 +167,7 @@ public class CRUDJUnitTest {
         
         String[] fname = {"Paweł", "Maciej"};
         String[] lname = {"Jaruga", "Stepnowski"};
-        int[] salary = {666000, 1850};
+        int[] salary = {20000, 1850};
         int id[] = new int[2];
         
         Session session = factory.openSession();
@@ -201,15 +201,15 @@ public class CRUDJUnitTest {
     @Test
     public void updateTest() {
         System.out.println("CRUD Update test: session.update()");
-        String[] fname = {"Marian", "Adam"};
-        String[] lname = {"Kowalski", "Szechter"};
+        String[] fname = {"Andrzej", "Adam"};
+        String[] lname = {"Kowalski", "Majewski"};
         int[] salary = {5000, 1000};
         
         List c1 = new ArrayList();
         c1.add(new Certificate("WPD"));
         c1.add(new Certificate("RN"));
         List c2 = new ArrayList();
-        c2.add(new Certificate("GW"));
+        c2.add(new Certificate("FGS"));
         List[] cert = {c1, c2};
         Employee[] employee = new Employee[fname.length];
         int id[] = new int[2];
@@ -231,7 +231,7 @@ public class CRUDJUnitTest {
                 i++;
             }
             employee[1].setSalary(2000);
-            employee[1].setLastName("Michnik");
+            employee[1].setLastName("Majewiak");
             session.update(employee[1]);
             
             Employee e = (Employee) session.get(Employee.class, id[1]);
@@ -242,7 +242,7 @@ public class CRUDJUnitTest {
             }
             
             assertEquals(e.getFirstName(), "Adam");
-            assertEquals(e.getLastName(), "Michnik");
+            assertEquals(e.getLastName(), "Majewiak");
             assertEquals(e.getSalary(), 2000);
             assertEquals(e.getCertificates(), cert[1]);
             i++;
@@ -259,8 +259,8 @@ public class CRUDJUnitTest {
     @Test
     public void deleteTest() {
         System.out.println("CRUD Delete test: session.delete()");
-        String[] fname = {"Andrzej", "Janusz"};
-        String[] lname = {"Kowalski", "Tracz"};
+        String[] fname = {"Andrzej", "Adam"};
+        String[] lname = {"Kowalski", "Majewski"};
         int[] salary = {7000, 15000};
         int id[] = new int[2];
         
@@ -268,7 +268,7 @@ public class CRUDJUnitTest {
         c1.add(new Certificate("WPD"));
         c1.add(new Certificate("RN"));
         List c2 = new ArrayList();
-        c2.add(new Certificate("GW"));
+        c2.add(new Certificate("FGS"));
         List[] cert = {c1, c2};
         Employee[] employee = new Employee[fname.length];
         
